@@ -1,0 +1,96 @@
+﻿@page "/"
+@model Razor1.Pages.PeopleModel
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Все пользователи";
+}
+
+<div class="people-container">
+    <div class="page-header">
+        <div class="header-left">
+            <h1 class="page-title">
+                <span class="title-icon">👥</span>
+                Все пользователи
+            </h1>
+        </div>
+    </div>
+
+    @if (!Model.People.Any())
+    {
+        <div class="empty-state">
+            <div class="empty-icon">📭</div>
+            <h3>Нет пользователей</h3>
+            <p>В базе данных пока нет ни одного пользователя</p>
+        </div>
+    }
+    else
+    {
+        <div class="people-stats">
+            <div class="stats-card">
+                <span class="stats-label">Всего пользователей</span>
+                <span class="stats-value">@Model.People.Count</span>
+            </div>
+            <div class="stats-card">
+                <span class="stats-label">Средний возраст</span>
+                <span class="stats-value">@GetAverageAge()</span>
+            </div>
+        </div>
+
+        <div class="people-grid">
+            @foreach (var person in Model.People)
+            {
+                <div class="person-card">
+                    @if (!string.IsNullOrEmpty(person.AvatarUrl))
+                    {
+                        <div class="card-avatar">
+                            <img src="@person.AvatarUrl" alt="@person.FirstName @person.LastName" class="avatar-image" />
+                        </div>
+                    }
+
+                    <div class="card-content">
+                        <h3 class="person-name">@person.FirstName @person.LastName</h3>
+                        
+                        <div class="person-details">
+                            <div class="detail-item">
+                                <span class="detail-icon">✉️</span>
+                                <span class="detail-text">@person.Email</span>
+                            </div>
+                            
+                            @if (!string.IsNullOrEmpty(person.Phone))
+                            {
+                                <div class="detail-item">
+                                    <span class="detail-icon">📞</span>
+                                    <span class="detail-text">@person.Phone</span>
+                                </div>
+                            }
+                            
+                            <div class="detail-item">
+                                <span class="detail-icon">🎂</span>
+                                <span class="detail-text">@person.Age лет</span>
+                            </div>
+                        </div>
+                        
+                        @if (!string.IsNullOrEmpty(person.ShortBio))
+                        {
+                            <p class="person-bio">@TruncateBio(person.ShortBio)</p>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+@functions {
+    private string TruncateBio(string bio)
+    {
+        if (string.IsNullOrEmpty(bio)) return string.Empty;
+        return bio.Length > 80 ? bio[..77] + "..." : bio;
+    }
+    
+    private int GetAverageAge()
+    {
+        if (!Model.People.Any()) return 0;
+        return (int)Model.People.Average(p => p.Age);
+    }
+}
